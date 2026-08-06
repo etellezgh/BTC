@@ -2,9 +2,12 @@
 
 {{column_name}} * (
      select 
-    price
+        close_price_usd
     from {{ ref('btc_usd_max')}}
-    where to_date(replace(snapped_at,' UTC',''))= current_date()
+        where try_to_date(replace(event_date,' UTC','')) <= current_date()
+        qualify row_number() over (
+            order by try_to_date(replace(event_date,' UTC','')) desc
+        ) = 1
 )
 
 {% endmacro %}
